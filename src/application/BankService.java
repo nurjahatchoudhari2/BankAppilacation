@@ -4,76 +4,80 @@ package application;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-public class BankService 
-{
-	private AccountRepository repository;
+import java.util.Scanner;
+
+public class BankService {
+
+    private DBConnect db;
     private Scanner scanner = new Scanner(System.in);
     private static int accIdGenerator = 2023102701;
-    
+
     public BankService(AccountRepository repository) {
-        this.repository = repository;
-    }
-
-    public void createAccount()
-    {
         try {
-             System.out.print("First Name: ");
-    		 String firstname = scanner.next();
-    		 
-
-             System.out.print("Last Name: ");
-             String lastname = scanner.next();
-
-             System.out.print("Initial Balance: ");
-             double bal = scanner.nextDouble();
-
-             System.out.print("Password: ");
-             int p1 = scanner.nextInt();
-
-             System.out.print("Confirm Password: ");
-             int p2 = scanner.nextInt();
-
-             if (p1 != p2) {
-                 throw new Exception("Password mismatch");
-             }
-
-             Account acc = new Account(++accIdGenerator, firstname, lastname, bal, p1);
-             repository.save(acc);
-
-             System.out.println("Account Created Successfully");
-             acc.showDetails();
-
-         } catch (Exception e) {
-             System.out.println(e.getMessage());
-         }
+            db = new DBConnect();
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
     }
-   
+
+    public void createAccount() {
+        try {
+            System.out.print("First Name: ");
+            String firstname = scanner.next();
+
+            System.out.print("Last Name: ");
+            String lastname = scanner.next();
+
+            System.out.print("Initial Balance: ");
+            double bal = scanner.nextDouble();
+
+            System.out.print("Password: ");
+            String p1 = scanner.next();
+
+            System.out.print("Confirm Password: ");
+            String p2 = scanner.next();
+
+            if (!p1.equals(p2)) {
+                throw new Exception("Password mismatch");
+            }
+
+            int accId = db.getNextAccountId();
+            db.saveAccount(accId, firstname, lastname, bal, p1);
+
+            System.out.println("Account Created Successfully");
+            System.out.println("Your Account ID: " + accId);
+
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
     public void login() {
         try {
             System.out.print("Account ID: ");
             int id = scanner.nextInt();
 
             System.out.print("Password: ");
-            int pass = scanner.nextInt();
+            String pass = scanner.next();
 
-            Account acc = findAccount(id, pass);
-            System.out.println("Login Successful");
+            Account acc = db.loginAccount(id, pass);
 
-            accountMenu(acc);
+             
+            System.out.println("\nLogin Successful");
+            System.out.println("Account Details:");
+            acc.showDetails();
+            System.out.println("Balance : " + acc.getBalance());
 
-        } catch (InvalidLoginException e) {
-            System.out.println(e.getMessage());
+            accountMenu(acc);  
+
+        } catch (Exception e) {
+            
+            System.out.println("Account not found");
+             
         }
     }
 
-    private Account findAccount(int id, int pass) throws InvalidLoginException 
-    {
-    	 Account acc = repository.findByIdAndPassword(id, pass);
-         if (acc == null) {
-             throw new InvalidLoginException("Invalid account ID or password");
-         }
-         return acc;
-    }
+
 
     private void accountMenu(Account acc) {
         int choice;
@@ -86,12 +90,14 @@ public class BankService
                     case 1:
                         System.out.print("Amount: ");
                         acc.withdraw(scanner.nextDouble());
+                        db.updateBalance(acc.getAccId(), acc.getBalance());
                         System.out.println("Withdraw Successful");
                         break;
 
                     case 2:
                         System.out.print("Amount: ");
                         acc.deposit(scanner.nextDouble());
+                        db.updateBalance(acc.getAccId(), acc.getBalance());
                         System.out.println("Deposit Successful");
                         break;
 
@@ -102,9 +108,6 @@ public class BankService
                     case 4:
                         System.out.println("Logged out");
                         break;
-
-                    default:
-                        System.out.println("Invalid option");
                 }
             } catch (Exception e) {
                 System.out.println(e.getMessage());
@@ -112,4 +115,23 @@ public class BankService
 
         } while (choice != 4);
     }
+    
+    public void deleteAccount() {
+        try {
+            System.out.print("Enter Account ID to delete: ");
+            int id = scanner.nextInt();
+
+            boolean deleted = db.deleteAccount(id);
+
+            if (deleted) {
+                System.out.println("Account deleted successfully");
+            } else {
+                System.out.println("Account not found");
+            }
+
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
 }

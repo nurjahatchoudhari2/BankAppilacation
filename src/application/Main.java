@@ -1,19 +1,21 @@
 package application;
 import java.util.Scanner;
 
+
 public class Main {
     public static void main(String[] args) {
 
         Scanner sc = new Scanner(System.in);
         AccountRepository repo = new AccountRepository();
         BankService bank = new BankService(repo);
-        
+
         int choice;
 
         do {
             System.out.println("WELCOME TO MY BANK");
             System.out.println("1.Create Account");
             System.out.println("2.Login");
+            System.out.println("3.Delete Account");
             System.out.println("3.Exit");
             choice = sc.nextInt();
 
@@ -27,6 +29,9 @@ public class Main {
                     break;
 
                 case 3:
+                    bank.deleteAccount();
+                    break;
+                case 4:
                     System.out.println("Thank you for using our bank!");
                     break;
 
@@ -34,6 +39,6 @@ public class Main {
                     System.out.println("Invalid choice");
             }
 
-        } while (choice != 3);
+        } while (choice != 4);
     }
 }
