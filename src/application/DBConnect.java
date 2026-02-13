@@ -21,8 +21,7 @@ public class DBConnect {
         );
     }
 
-    public void saveAccount(int accId, String fname, String lname, double balance, String pass)
-            throws SQLException {
+    public void saveAccount(int accId, String fname, String lname, double balance, String pass) throws SQLException {
 
         String query = "INSERT INTO account VALUES (?,?,?,?,?)";
         PreparedStatement ps = connection.prepareStatement(query);

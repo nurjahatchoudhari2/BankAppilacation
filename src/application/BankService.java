@@ -70,10 +70,12 @@ public class BankService {
 
             accountMenu(acc);  
 
-        } catch (Exception e) {
+        } catch (InvalidLoginException e) {
             
             System.out.println("Account not found");
-             
+        } catch (Exception e1)
+        {
+        	e1.getMessage();
         }
     }
 
